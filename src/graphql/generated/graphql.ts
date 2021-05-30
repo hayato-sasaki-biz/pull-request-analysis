@@ -19715,15 +19715,12 @@ export type ViewerHovercardContext = HovercardContext & {
 
 
 
-export const RecentPullRequests = gql`
-    query RecentPullRequests($repositoryOwner: String!, $repositoryName: String!, $label: String!) {
-  repository(owner: $repositoryOwner, name: $repositoryName) {
-    pullRequests(
-      first: 100
-      labels: [$label]
-      orderBy: {field: CREATED_AT, direction: DESC}
-    ) {
-      nodes {
+export const PullRequestsBySearch = gql`
+    query PullRequestsBySearch($query: String!) {
+  search(query: $query, type: ISSUE, last: 20) {
+    issueCount
+    nodes {
+      ... on PullRequest {
         id
         number
         title
@@ -19739,27 +19736,23 @@ export const RecentPullRequests = gql`
   }
 }
     `;
-export type RecentPullRequestsQueryVariables = Exact<{
-  repositoryOwner: Scalars['String'];
-  repositoryName: Scalars['String'];
-  label: Scalars['String'];
+export type PullRequestsBySearchQueryVariables = Exact<{
+  query: Scalars['String'];
 }>;
 
 
-export type RecentPullRequestsQuery = (
+export type PullRequestsBySearchQuery = (
   { __typename?: 'Query' }
-  & { repository?: Maybe<(
-    { __typename?: 'Repository' }
-    & { pullRequests: (
-      { __typename?: 'PullRequestConnection' }
-      & { nodes?: Maybe<Array<Maybe<(
-        { __typename?: 'PullRequest' }
-        & Pick<PullRequest, 'id' | 'number' | 'title' | 'state' | 'createdAt' | 'mergedAt' | 'permalink'>
-        & { reviewThreads: (
-          { __typename?: 'PullRequestReviewThreadConnection' }
-          & Pick<PullRequestReviewThreadConnection, 'totalCount'>
-        ) }
-      )>>> }
-    ) }
-  )> }
+  & { search: (
+    { __typename?: 'SearchResultItemConnection' }
+    & Pick<SearchResultItemConnection, 'issueCount'>
+    & { nodes?: Maybe<Array<Maybe<{ __typename?: 'App' } | { __typename?: 'Issue' } | { __typename?: 'MarketplaceListing' } | { __typename?: 'Organization' } | (
+      { __typename?: 'PullRequest' }
+      & Pick<PullRequest, 'id' | 'number' | 'title' | 'state' | 'createdAt' | 'mergedAt' | 'permalink'>
+      & { reviewThreads: (
+        { __typename?: 'PullRequestReviewThreadConnection' }
+        & Pick<PullRequestReviewThreadConnection, 'totalCount'>
+      ) }
+    ) | { __typename?: 'Repository' } | { __typename?: 'User' }>>> }
+  ) }
 );

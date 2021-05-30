@@ -1,8 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
 import {
-  RecentPullRequestsQuery,
-  RecentPullRequests,
-  RecentPullRequestsQueryVariables,
+  PullRequestsBySearchQuery,
+  PullRequestsBySearch,
 } from "../graphql/generated/graphql";
 import { githubClient } from "./graphql";
 
@@ -17,35 +16,43 @@ export type PullRequest = {
   reviewThreadCount: number;
 };
 
-export function getRecentPullRequests(): Promise<PullRequest[]> {
-  const variables: RecentPullRequestsQueryVariables = {
-    repositoryOwner:
-      PropertiesService.getScriptProperties().getProperty("repositoryOwner"),
-    repositoryName:
-      PropertiesService.getScriptProperties().getProperty("repositoryName"),
-    label: PropertiesService.getScriptProperties().getProperty("prLabel"),
-  };
+export function searchPullRequests(query: String): Promise<PullRequest[]> {
   return githubClient()
-    .query<RecentPullRequestsQuery>({
-      query: RecentPullRequests,
-      variables,
+    .query<PullRequestsBySearchQuery>({
+      query: PullRequestsBySearch,
+      variables: {
+        query,
+      },
     })
     .then((result) => {
-      if (!result.data.repository) {
-        throw new Error("Not found repository");
-      }
-      return result.data.repository;
-    })
-    .then((repository): PullRequest[] => {
-      return repository.pullRequests.nodes.map((pr) => ({
-        nodeId: pr.id,
-        number: pr.number,
-        title: pr.title,
-        state: pr.state,
-        createdAt: dayjs(pr.createdAt),
-        mergetAt: pr.mergedAt != null ? dayjs(pr.mergedAt) : null,
-        url: pr.permalink,
-        reviewThreadCount: pr.reviewThreads.totalCount,
-      }));
+      const pullRequests: PullRequest[] = result.data.search.nodes
+        .map((node) => {
+          if (node.__typename === "PullRequest") {
+            return {
+              nodeId: node.id,
+              number: node.number,
+              title: node.title,
+              state: node.state,
+              createdAt: dayjs(node.createdAt),
+              mergetAt: node.mergedAt != null ? dayjs(node.mergedAt) : null,
+              url: node.permalink,
+              reviewThreadCount: node.reviewThreads.totalCount,
+            };
+          } else {
+            return null;
+          }
+        })
+        .filter((item) => item !== null);
+      return pullRequests;
     });
+}
+
+export function generateSearchQuery(createdAfter: Dayjs): string {
+  const repositoryOwner =
+    PropertiesService.getScriptProperties().getProperty("repositoryOwner");
+  const repositoryName =
+    PropertiesService.getScriptProperties().getProperty("repositoryName");
+  const label = PropertiesService.getScriptProperties().getProperty("prLabel");
+
+  return `repo:${repositoryOwner}/${repositoryName} is:pr created:>${createdAfter.toISOString()}`;
 }

@@ -1,0 +1,19 @@
+query PullRequestsBySearch($query: String!) {
+  search(query: $query, type: ISSUE, last: 20) {
+    issueCount
+    nodes {
+      ... on PullRequest {
+        id
+        number
+        title
+        state
+        createdAt
+        mergedAt
+        permalink
+        reviewThreads {
+          totalCount
+        }
+      }
+    }
+  }
+}
