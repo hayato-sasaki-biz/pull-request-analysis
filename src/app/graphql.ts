@@ -5,7 +5,6 @@ import fetch from "./fetcher";
 
 const ACCESS_TOKEN =
   PropertiesService.getScriptProperties().getProperty("accessToken");
-// const ACCESS_TOKEN = "";
 
 export function githubClient(
   fetcher = fetch,
