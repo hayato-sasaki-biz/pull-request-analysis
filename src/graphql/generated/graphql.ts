@@ -19724,6 +19724,7 @@ export const RecentPullRequests = gql`
       orderBy: {field: CREATED_AT, direction: DESC}
     ) {
       nodes {
+        id
         number
         title
         state
@@ -19753,7 +19754,7 @@ export type RecentPullRequestsQuery = (
       { __typename?: 'PullRequestConnection' }
       & { nodes?: Maybe<Array<Maybe<(
         { __typename?: 'PullRequest' }
-        & Pick<PullRequest, 'number' | 'title' | 'state' | 'createdAt' | 'mergedAt' | 'permalink'>
+        & Pick<PullRequest, 'id' | 'number' | 'title' | 'state' | 'createdAt' | 'mergedAt' | 'permalink'>
         & { reviewThreads: (
           { __typename?: 'PullRequestReviewThreadConnection' }
           & Pick<PullRequestReviewThreadConnection, 'totalCount'>

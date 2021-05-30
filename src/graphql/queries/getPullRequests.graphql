@@ -10,6 +10,7 @@ query RecentPullRequests(
       orderBy: { field: CREATED_AT, direction: DESC }
     ) {
       nodes {
+        id
         number
         title
         state

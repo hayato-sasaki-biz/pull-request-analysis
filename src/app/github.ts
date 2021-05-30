@@ -7,6 +7,7 @@ import {
 import { githubClient } from "./graphql";
 
 export type PullRequest = {
+  nodeId: string;
   number: number;
   title: string;
   state: string;
@@ -37,6 +38,7 @@ export function getRecentPullRequests(): Promise<PullRequest[]> {
     })
     .then((repository): PullRequest[] => {
       return repository.pullRequests.nodes.map((pr) => ({
+        nodeId: pr.id,
         number: pr.number,
         title: pr.title,
         state: pr.state,

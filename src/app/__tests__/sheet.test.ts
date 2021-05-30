@@ -6,6 +6,7 @@ describe("write pull requests info to spreadsheet", () => {
   it("convert pullRequest array to string 2d array", () => {
     const pullRequests: PullRequest[] = [
       {
+        nodeId: "1",
         number: 1,
         title: "not merged pull request",
         state: "open",
@@ -15,6 +16,7 @@ describe("write pull requests info to spreadsheet", () => {
         mergetAt: null,
       },
       {
+        nodeId: "2",
         number: 2,
         title: "merged pull request",
         state: "merged",
