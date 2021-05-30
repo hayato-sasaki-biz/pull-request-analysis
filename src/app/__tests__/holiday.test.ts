@@ -1,5 +1,11 @@
 import dayjs from "dayjs";
-import { isOnBusinessDay, countDiffOfBusinessDay } from "../holiday";
+import fetch from "node-fetch";
+import * as Fetcher from "../fetcher";
+import {
+  isOnBusinessDay,
+  countDiffOfBusinessDay,
+  getHolidays,
+} from "../holiday";
 
 describe("isOnBuinessDay", () => {
   it("sunday is not business day", () => {
@@ -47,5 +53,15 @@ describe("countBusinessDay", () => {
     const from = dayjs("2021-05-27"); // Thursday
     const to = dayjs("2021-05-31"); // Monday
     expect(countDiffOfBusinessDay(from, to)).toBe(2);
+  });
+});
+
+describe("getHolidays", () => {
+  jest.spyOn(Fetcher, "default").mockImplementation(fetch);
+  it("json can be fetched", () => {
+    return getHolidays().then((holidays) => {
+      console.log(holidays);
+      expect(holidays.length).toBeGreaterThan(0);
+    });
   });
 });
