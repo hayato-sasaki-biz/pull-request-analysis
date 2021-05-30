@@ -1,0 +1,24 @@
+query ReviewThreadsByIds($ids: [ID!]!) {
+  nodes(ids: $ids) {
+    ... on PullRequest {
+      number
+      reviewThreads(first: 100) {
+        nodes {
+          isResolved
+          path
+          comments(first: 20) {
+            totalCount
+            nodes {
+              author {
+                login
+              }
+              body
+              createdAt
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}

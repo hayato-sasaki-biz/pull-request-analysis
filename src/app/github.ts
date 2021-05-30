@@ -1,7 +1,10 @@
 import dayjs, { Dayjs } from "dayjs";
+import path from "path";
 import {
   PullRequestsBySearchQuery,
   PullRequestsBySearch,
+  ReviewThreadsByIdsQuery,
+  ReviewThreadsByIds,
 } from "../graphql/generated/graphql";
 import { githubClient } from "./graphql";
 
@@ -55,4 +58,62 @@ export function generateSearchQuery(createdAfter: Dayjs): string {
   const label = PropertiesService.getScriptProperties().getProperty("prLabel");
 
   return `repo:${repositoryOwner}/${repositoryName} is:pr created:>${createdAfter.toISOString()}`;
+}
+
+export type ThreadInfo = {
+  prNumber: number;
+  url: string;
+  threadTitle: string;
+  author: string;
+  commentCount: number;
+  isResolved: boolean;
+  fileType: string;
+  createdAt: Dayjs;
+  lastCommentAt: Dayjs;
+};
+
+export function getReviewThreads(
+  pullRequestIds: string[]
+): Promise<ThreadInfo[]> {
+  return githubClient()
+    .query<ReviewThreadsByIdsQuery>({
+      query: ReviewThreadsByIds,
+      variables: {
+        ids: pullRequestIds,
+      },
+    })
+    .then((result) => {
+      const pullRequests = result.data.nodes
+        .map((node) => {
+          if (node.__typename === "PullRequest") {
+            return node;
+          } else {
+            return null;
+          }
+        })
+        .filter((node) => node !== null);
+      return pullRequests
+        .map((pr) => {
+          const prNumber = pr.number;
+          const threadInfos: ThreadInfo[] = pr.reviewThreads.nodes.map(
+            (thread) => {
+              const firstComment = thread.comments.nodes[0];
+              const lastComment = thread.comments.nodes.slice(-1)[0];
+              return {
+                prNumber,
+                url: firstComment.url,
+                threadTitle: firstComment.body,
+                author: firstComment.author?.login ?? "not logged in user",
+                commentCount: thread.comments.totalCount,
+                isResolved: thread.isResolved,
+                fileType: path.extname(thread.path),
+                createdAt: dayjs(firstComment.createdAt),
+                lastCommentAt: dayjs(lastComment.createdAt),
+              };
+            }
+          );
+          return threadInfos;
+        })
+        .reduce((prev, current) => [...prev, ...current]);
+    });
 }
