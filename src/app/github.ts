@@ -6,7 +6,7 @@ import {
 } from "../graphql/generated/graphql";
 import { githubClient } from "./graphql";
 
-type PullRequest = {
+export type PullRequest = {
   number: number;
   title: string;
   state: string;

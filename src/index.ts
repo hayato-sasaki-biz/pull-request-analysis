@@ -1,11 +1,10 @@
 import { getRecentPullRequests } from "./app/github";
+import { writePullRequestsToSheet } from "./app/sheet";
 
-global.getRecentPullRequests = () => {
+global.writeRecentPullRequestsToSheet = () => {
   getRecentPullRequests()
     .then((pullRequests) => {
-      pullRequests.forEach((pr) => {
-        Logger.log(pr);
-      });
+      writePullRequestsToSheet(pullRequests, "Pull Request Info");
     })
     .catch((error) => {
       Logger.log(error);
