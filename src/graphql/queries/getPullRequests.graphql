@@ -1,0 +1,25 @@
+query RecentPullRequests(
+  $repositoryOwner: String!
+  $repositoryName: String!
+  $label: String!
+) {
+  repository(owner: $repositoryOwner, name: $repositoryName) {
+    pullRequests(
+      first: 100
+      labels: [$label]
+      orderBy: { field: CREATED_AT, direction: DESC }
+    ) {
+      nodes {
+        number
+        title
+        state
+        createdAt
+        mergedAt
+        permalink
+        reviewThreads {
+          totalCount
+        }
+      }
+    }
+  }
+}
