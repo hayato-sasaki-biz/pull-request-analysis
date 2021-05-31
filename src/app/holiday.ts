@@ -43,3 +43,12 @@ export const countDiffOfBusinessDay = (
   }
   return count;
 };
+
+export const getPreviousWeekday = (
+  current: Dayjs,
+  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6
+) => {
+  return current.day(dayOfWeek).isBefore(current, "d")
+    ? current.day(dayOfWeek).startOf("date")
+    : current.day(dayOfWeek - 7).startOf("date");
+};

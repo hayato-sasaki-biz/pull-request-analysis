@@ -5,6 +5,7 @@ import {
   isOnBusinessDay,
   countDiffOfBusinessDay,
   getHolidays,
+  getPreviousWeekday,
 } from "../holiday";
 
 describe("isOnBuinessDay", () => {
@@ -63,5 +64,31 @@ describe("getHolidays", () => {
       console.log(holidays);
       expect(holidays.length).toBeGreaterThan(0);
     });
+  });
+});
+
+describe("weekday", () => {
+  it("last thursday is in the same week when current is friday", () => {
+    const current = dayjs("2021/05/28"); // Friday
+    const thursday = 4;
+    expect(getPreviousWeekday(current, thursday).format("YYYY/MM/DD")).toBe(
+      "2021/05/27"
+    );
+  });
+
+  it("last thursday is previous week when current is sunday", () => {
+    const current = dayjs("2021/05/23"); // Sunday
+    const thursday = 4;
+    expect(getPreviousWeekday(current, thursday).format("YYYY/MM/DD")).toBe(
+      "2021/05/20"
+    );
+  });
+
+  it("last thursday is previous week when current is thursday", () => {
+    const current = dayjs("2021/05/27"); // Thursday
+    const thursday = 4;
+    expect(getPreviousWeekday(current, thursday).format("YYYY/MM/DD")).toBe(
+      "2021/05/20"
+    );
   });
 });
