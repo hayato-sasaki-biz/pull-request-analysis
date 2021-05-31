@@ -14,7 +14,7 @@ const resolveAnalysisTypes = [
 ] as const;
 type ResolveAnalysisType = typeof resolveAnalysisTypes[number];
 
-type ThreadAnalysisType = {
+export type ThreadAnalysisType = {
   daysToBeResolved: number | null;
   minutesToBeResolved: number | null;
   resolveAnalysisType: ResolveAnalysisType;
