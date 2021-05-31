@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from "dayjs";
-import path from "path";
 import {
   PullRequestsBySearchQuery,
   PullRequestsBySearch,
@@ -106,7 +105,7 @@ export function getReviewThreads(
                 author: firstComment.author?.login ?? "not logged in user",
                 commentCount: thread.comments.totalCount,
                 isResolved: thread.isResolved,
-                fileType: path.extname(thread.path),
+                fileType: thread.path.split(".").pop(),
                 createdAt: dayjs(firstComment.createdAt),
                 lastCommentAt: dayjs(lastComment.createdAt),
               };
