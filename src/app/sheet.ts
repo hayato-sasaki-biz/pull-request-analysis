@@ -3,7 +3,7 @@ import type { PullRequest } from "./github";
 export function convertPullRequstsTo2dArray(
   pullRequests: PullRequest[]
 ): string[][] {
-  const title = [
+  const columnNames = [
     "number",
     "title",
     "url",
@@ -12,6 +12,8 @@ export function convertPullRequstsTo2dArray(
     "createdAt",
     "mergetAt",
   ];
+  const title = new Array<string>(columnNames.length).fill("");
+  title[0] = "Pull Requests";
   const values = pullRequests.map((pr) => [
     `#${pr.number}`,
     pr.title,
@@ -21,7 +23,7 @@ export function convertPullRequstsTo2dArray(
     pr.createdAt.format("YYYY/MM/DD HH:mm"),
     pr.mergetAt?.format("YYYY/MM/DD HH:mm") ?? "-",
   ]);
-  return [title, ...values];
+  return [title, columnNames, ...values];
 }
 
 export function writePullRequestsToSheet(
