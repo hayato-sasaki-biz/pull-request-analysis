@@ -56,7 +56,7 @@ export function generateSearchQuery(createdAfter: Dayjs): string {
     PropertiesService.getScriptProperties().getProperty("repositoryName");
   const label = PropertiesService.getScriptProperties().getProperty("prLabel");
 
-  return `repo:${repositoryOwner}/${repositoryName} is:pr created:>${createdAfter.toISOString()}`;
+  return `repo:${repositoryOwner}/${repositoryName} is:pr created:>${createdAfter.toISOString()} label:${label}`;
 }
 
 export type ThreadInfo = {
