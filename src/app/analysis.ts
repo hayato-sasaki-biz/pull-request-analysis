@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 import { ThreadInfo } from "./github";
 import { countDiffOfBusinessDay } from "./holiday";
 
-const resolveAnalysisTypes = [
+export const resolveAnalysisTypes = [
   "within30min",
   "within1hour",
   "within3hours",

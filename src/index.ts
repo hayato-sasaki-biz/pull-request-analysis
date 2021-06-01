@@ -8,6 +8,7 @@ import {
 import {
   getNewSheet,
   writePullRequestsToSheet,
+  writeResolveTypeCount,
   writeThreadAnalysesToSheet,
 } from "./app/sheet";
 import { analyzeThreads } from "./app/analysis";
@@ -23,7 +24,15 @@ global.writeRecentPullRequestInfoToSheet = async () => {
     const sheetName = `PR Info from ${createdAfter.format("YY/MM/DD")}`;
     const sheet = getNewSheet(sheetName);
     writePullRequestsToSheet(pullRequests, sheet);
-    writeThreadAnalysesToSheet(threadAnalyses, sheet);
+    const threadAnalysesRange = writeThreadAnalysesToSheet(
+      threadAnalyses,
+      sheet
+    );
+    writeResolveTypeCount(
+      threadAnalysesRange,
+      pullRequests.map((pr) => pr.number),
+      sheet
+    );
   } catch (error) {
     Logger.log(error);
   }

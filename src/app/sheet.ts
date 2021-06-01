@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { ThreadAnalysisType } from "./analysis";
+import { resolveAnalysisTypes, ThreadAnalysisType } from "./analysis";
 import type { PullRequest } from "./github";
 
 const FORMAT = "YYYY/MM/DD HH:mm";
@@ -32,11 +32,11 @@ export function convertPullRequstsTo2dArray(
 export function writePullRequestsToSheet(
   pullRequests: PullRequest[],
   sheet: GoogleAppsScript.Spreadsheet.Sheet
-): void {
+): GoogleAppsScript.Spreadsheet.Range {
   const values = convertPullRequstsTo2dArray(pullRequests);
   const numberOfRows = values.length;
   const numberOfColumns = values[0].length;
-  sheet
+  return sheet
     .getRange(sheet.getLastRow() + 2, 1, numberOfRows, numberOfColumns)
     .setValues(values);
 }
@@ -80,13 +80,47 @@ function convertThreadAnalysesTo2dArray(
 export function writeThreadAnalysesToSheet(
   threadAnalyses: ThreadAnalysisType[],
   sheet: GoogleAppsScript.Spreadsheet.Sheet
-) {
+): GoogleAppsScript.Spreadsheet.Range {
   const values = convertThreadAnalysesTo2dArray(threadAnalyses);
   const numberOfRows = values.length;
   const numberOfColumns = values[0].length;
-  sheet
+  return sheet
     .getRange(sheet.getLastRow() + 2, 1, numberOfRows, numberOfColumns)
     .setValues(values);
+}
+
+export function writeResolveTypeCount(
+  threadAnalysisRange: GoogleAppsScript.Spreadsheet.Range,
+  pullRequestNumbers: number[],
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
+) {
+  const columnNames: string[] = [...resolveAnalysisTypes];
+  const firstRow = sheet.getLastRow() + 2;
+  const firstColumn = 1;
+  sheet
+    .getRange(firstRow, firstColumn + 1, 1, columnNames.length)
+    .setValues([columnNames]);
+  sheet
+    .getRange(firstRow + 1, firstColumn, pullRequestNumbers.length, 1)
+    .setValues(pullRequestNumbers.map((num) => [`#${num}`]));
+  const prNumbersR1C1 = `R${
+    threadAnalysisRange.getRow() + 2
+  }C1:R${threadAnalysisRange.getLastRow()}C1`;
+  // resolveAnalysisTypeが最終列にあると仮定
+  // TODO TextFinderで列を特定する
+  const resolveAnalysisTypeR1C1 = `R${
+    threadAnalysisRange.getRow() + 2
+  }C${threadAnalysisRange.getLastColumn()}:R${threadAnalysisRange.getLastRow()}C${threadAnalysisRange.getLastColumn()}`;
+  sheet
+    .getRange(
+      firstRow + 1,
+      firstColumn + 1,
+      pullRequestNumbers.length,
+      columnNames.length
+    )
+    .setFormulaR1C1(
+      `=COUNTIFS(${prNumbersR1C1}, RC1, ${resolveAnalysisTypeR1C1}, R${firstRow}C)`
+    );
 }
 
 function doesSheetExist(sheetName: string) {
