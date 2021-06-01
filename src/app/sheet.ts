@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { ThreadAnalysisType } from "./analysis";
 import type { PullRequest } from "./github";
 
@@ -35,7 +36,9 @@ export function writePullRequestsToSheet(
   const values = convertPullRequstsTo2dArray(pullRequests);
   const numberOfRows = values.length;
   const numberOfColumns = values[0].length;
-  sheet.getRange(1, 1, numberOfRows, numberOfColumns).setValues(values);
+  sheet
+    .getRange(sheet.getLastRow() + 2, 1, numberOfRows, numberOfColumns)
+    .setValues(values);
 }
 
 function convertThreadAnalysesTo2dArray(
@@ -94,8 +97,15 @@ function doesSheetExist(sheetName: string) {
 
 export function getNewSheet(sheetName: string) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet: GoogleAppsScript.Spreadsheet.Sheet;
   if (doesSheetExist(sheetName)) {
-    ss.getSheetByName(sheetName);
+    sheet = ss.getSheetByName(sheetName);
+    sheet.clear();
+  } else {
+    sheet = ss.insertSheet(sheetName);
   }
-  return ss.insertSheet(sheetName);
+  sheet
+    .getRange(1, 1)
+    .setValue("this sheet is generated at " + dayjs().format("YYYY/MM/DD"));
+  return sheet;
 }

@@ -91,28 +91,28 @@ export function getReviewThreads(
           }
         })
         .filter((node) => node !== null);
-      return pullRequests
-        .map((pr) => {
-          const prNumber = pr.number;
-          const threadInfos: ThreadInfo[] = pr.reviewThreads.nodes.map(
-            (thread) => {
-              const firstComment = thread.comments.nodes[0];
-              const lastComment = thread.comments.nodes.slice(-1)[0];
-              return {
-                prNumber,
-                url: firstComment.url,
-                threadTitle: firstComment.body,
-                author: firstComment.author?.login ?? "not logged in user",
-                commentCount: thread.comments.totalCount,
-                isResolved: thread.isResolved,
-                fileType: thread.path.split(".").pop(),
-                createdAt: dayjs(firstComment.createdAt),
-                lastCommentAt: dayjs(lastComment.createdAt),
-              };
-            }
-          );
-          return threadInfos;
-        })
-        .reduce((prev, current) => [...prev, ...current]);
+      const threadInfoList = pullRequests.map((pr) => {
+        const prNumber = pr.number;
+        const threadInfos: ThreadInfo[] = pr.reviewThreads.nodes.map(
+          (thread) => {
+            const firstComment = thread.comments.nodes[0];
+            const lastComment = thread.comments.nodes.slice(-1)[0];
+            return {
+              prNumber,
+              url: firstComment.url,
+              threadTitle: firstComment.body,
+              author: firstComment.author?.login ?? "not logged in user",
+              commentCount: thread.comments.totalCount,
+              isResolved: thread.isResolved,
+              fileType: thread.path.split(".").pop(),
+              createdAt: dayjs(firstComment.createdAt),
+              lastCommentAt: dayjs(lastComment.createdAt),
+            };
+          }
+        );
+        return threadInfos;
+      });
+      if (threadInfoList.length === 0) return [];
+      return threadInfoList.reduce((prev, current) => [...prev, ...current]);
     });
 }
