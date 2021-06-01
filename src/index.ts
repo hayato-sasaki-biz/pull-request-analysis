@@ -6,6 +6,7 @@ import {
   getReviewThreads,
 } from "./app/github";
 import {
+  getNewSheet,
   writePullRequestsToSheet,
   writeThreadAnalysesToSheet,
 } from "./app/sheet";
@@ -19,9 +20,10 @@ global.writeRecentPullRequestInfoToSheet = async () => {
     const threads = await getReviewThreads(pullRequests.map((pr) => pr.nodeId));
     const holidays = await getHolidays();
     const threadAnalyses = analyzeThreads(threads, holidays);
-    const sheetName = `PR Info ${createdAfter.format("YY/MM/DD")}`;
-    writePullRequestsToSheet(pullRequests, sheetName);
-    writeThreadAnalysesToSheet(threadAnalyses, sheetName);
+    const sheetName = `PR Info from ${createdAfter.format("YY/MM/DD")}`;
+    const sheet = getNewSheet(sheetName);
+    writePullRequestsToSheet(pullRequests, sheet);
+    writeThreadAnalysesToSheet(threadAnalyses, sheet);
   } catch (error) {
     Logger.log(error);
   }

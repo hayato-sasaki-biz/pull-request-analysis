@@ -30,10 +30,8 @@ export function convertPullRequstsTo2dArray(
 
 export function writePullRequestsToSheet(
   pullRequests: PullRequest[],
-  sheetName: string
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
 ): void {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.insertSheet(sheetName);
   const values = convertPullRequstsTo2dArray(pullRequests);
   const numberOfRows = values.length;
   const numberOfColumns = values[0].length;
@@ -78,14 +76,26 @@ function convertThreadAnalysesTo2dArray(
 
 export function writeThreadAnalysesToSheet(
   threadAnalyses: ThreadAnalysisType[],
-  sheetName: string
-): void {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(sheetName);
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
+) {
   const values = convertThreadAnalysesTo2dArray(threadAnalyses);
   const numberOfRows = values.length;
   const numberOfColumns = values[0].length;
   sheet
     .getRange(sheet.getLastRow() + 2, 1, numberOfRows, numberOfColumns)
     .setValues(values);
+}
+
+function doesSheetExist(sheetName: string) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  return !!sheet;
+}
+
+export function getNewSheet(sheetName: string) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (doesSheetExist(sheetName)) {
+    ss.getSheetByName(sheetName);
+  }
+  return ss.insertSheet(sheetName);
 }
