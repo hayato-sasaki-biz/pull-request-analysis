@@ -111,7 +111,7 @@ export function writeResolveTypeCount(
   const resolveAnalysisTypeR1C1 = `R${
     threadAnalysisRange.getRow() + 2
   }C${threadAnalysisRange.getLastColumn()}:R${threadAnalysisRange.getLastRow()}C${threadAnalysisRange.getLastColumn()}`;
-  sheet
+  const formulaRange = sheet
     .getRange(
       firstRow + 1,
       firstColumn + 1,
@@ -121,6 +121,18 @@ export function writeResolveTypeCount(
     .setFormulaR1C1(
       `=COUNTIFS(${prNumbersR1C1}, RC1, ${resolveAnalysisTypeR1C1}, R${firstRow}C)`
     );
+  const tableRange = formulaRange.getDataRegion();
+  const chart = sheet
+    .newChart()
+    .addRange(tableRange)
+    .setPosition(sheet.getLastRow() + 2, 1, 0, 0)
+    .setTransposeRowsAndColumns(true)
+    .setNumHeaders(1)
+    .asBarChart()
+    .setStacked()
+    .setXAxisTitle("カウント")
+    .setTitle("各PRのresolveまでの時間");
+  sheet.insertChart(chart.build());
 }
 
 function doesSheetExist(sheetName: string) {
@@ -140,6 +152,8 @@ export function getNewSheet(sheetName: string) {
   }
   sheet
     .getRange(1, 1)
-    .setValue("this sheet is generated at " + dayjs().format("YYYY/MM/DD"));
+    .setValue(
+      "this sheet is generated at " + dayjs().format("YYYY/MM/DD HH:mm:ss")
+    );
   return sheet;
 }
